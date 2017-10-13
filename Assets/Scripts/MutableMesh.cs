@@ -7,12 +7,13 @@ public class MutableMeshVertex {
   public Vector3 Pos;
   public int Index;
 }
+
 public class MutableMeshTriangle {
   public MutableMeshVertex v1;
   public MutableMeshVertex v2;
   public MutableMeshVertex v3;
-
   MutableMesh mesh;
+
   public MutableMeshTriangle (MutableMesh mesh, MutableMeshVertex v1, MutableMeshVertex v2, MutableMeshVertex v3) {
     this.v1 = v1;
     this.v2 = v2;
@@ -22,25 +23,30 @@ public class MutableMeshTriangle {
 }
 
 public class MutableMesh {
+
   public List<MutableMeshVertex> Vertexes = new List<MutableMeshVertex> ();
   public List<MutableMeshTriangle> Triangles = new List<MutableMeshTriangle> ();
 
   public MutableMesh () { }
 
-  public void BuildMesh (out List<Vector3> vertexes, out List<int> triangles) {
-    vertexes = new List<Vector3> ();
+  public List<Vector3> GetVertexes () {
+    var vertexes = new List<Vector3> ();
     int vertexIndex = 0;
     foreach (var v in Vertexes) {
       vertexes.Add (v.Pos);
       vertexIndex += 1;
     }
+    return vertexes;
+  }
 
-    triangles = new List<int> ();
+  public List<int> GetTriangles () {
+    var triangles = new List<int> ();
     foreach (var t in Triangles) {
       triangles.Add (t.v1.Index);
       triangles.Add (t.v2.Index);
       triangles.Add (t.v3.Index);
     }
+    return triangles;
   }
 
   public MutableMeshVertex CreateVertex (Vector3 pos) {
@@ -50,11 +56,11 @@ public class MutableMesh {
     Vertexes.Add (v);
     return v;
   }
-  
-  public MutableMeshTriangle CreateTriangle(MutableMeshVertex v1, MutableMeshVertex v2, MutableMeshVertex v3) {
-      var triangle = new MutableMeshTriangle(this, v1, v2, v3);
-      Triangles.Add(triangle);
-      return triangle;
+
+  public MutableMeshTriangle CreateTriangle (MutableMeshVertex v1, MutableMeshVertex v2, MutableMeshVertex v3) {
+    var triangle = new MutableMeshTriangle (this, v1, v2, v3);
+    Triangles.Add (triangle);
+    return triangle;
   }
 
 }
