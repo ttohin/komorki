@@ -9,11 +9,11 @@ public class MeshGenerator : MonoBehaviour {
 
     var mutableMesh = new MeshGeneration.MutableMesh ();
     var grid = new MeshGeneration.SquareGrid(10, 10, mutableMesh);
-    grid.grid[0, 0].points = MeshGeneration.Square.CreateSquareFromPoint(MeshGeneration.SquarePoint.BottomLeft);
-    grid.grid[0, 1].points = MeshGeneration.Square.CreateSquareFromPoint(MeshGeneration.SquarePoint.BottomLeft);
-    grid.grid[1, 0].points = MeshGeneration.Square.CreateSquareFromPoint(MeshGeneration.SquarePoint.BottomLeft);
-    grid.grid[1, 1].points = MeshGeneration.Square.CreateSquareFromPoint(MeshGeneration.SquarePoint.BottomLeft);
-    grid.grid[2, 1].points = MeshGeneration.Square.CreateSquareFromPoint(MeshGeneration.SquarePoint.BottomLeft);
+    grid.grid[0, 0].points = MeshGeneration.Square.CreateChannel(MeshGeneration.SquarePoint.TopRight);
+    grid.grid[0, 1].points = MeshGeneration.Square.CreateChannel(MeshGeneration.SquarePoint.BottomRight);
+    grid.grid[1, 0].points = MeshGeneration.Square.CreateChannel(MeshGeneration.SquarePoint.TopLeft);
+    grid.grid[1, 1].points = MeshGeneration.Square.CreateChannel(MeshGeneration.SquarePoint.BottomLeft);
+    grid.grid[2, 1].points = MeshGeneration.Square.CreateChannel(MeshGeneration.SquarePoint.TopLeft);
     grid.Build();
 
     var meshFilter = gameObject.GetComponent<MeshFilter> ();

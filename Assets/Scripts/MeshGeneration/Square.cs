@@ -42,13 +42,11 @@ namespace MeshGeneration {
         this.nodes[SquarePoint.TopRight] = square.nodes[SquarePoint.TopLeft];
         this.nodes[SquarePoint.RightCenter] = square.nodes[SquarePoint.LeftCenter];
         this.nodes[SquarePoint.BottomRight] = square.nodes[SquarePoint.BottomLeft];
-      }
-      else if (position == SquarePoint.TopCenter) {
+      } else if (position == SquarePoint.TopCenter) {
         this.nodes[SquarePoint.TopRight] = square.nodes[SquarePoint.BottomRight];
         this.nodes[SquarePoint.TopCenter] = square.nodes[SquarePoint.BottomCenter];
         this.nodes[SquarePoint.TopLeft] = square.nodes[SquarePoint.BottomLeft];
-      }
-      else {
+      } else {
         throw new ArgumentException ("Unimplemented");
       }
     }
@@ -79,6 +77,31 @@ namespace MeshGeneration {
       };
     }
 
+    public static List<SquarePoint> CreateShorCorner (SquarePoint startPoint) {
+      return new List<SquarePoint> () {
+        IncrementPoint (startPoint, 0),
+          IncrementPoint (startPoint, 1),
+          IncrementPoint (startPoint, 7),
+      };
+    }
+
+    public static List<SquarePoint> CreateChannel (SquarePoint startPoint) {
+      return new List<SquarePoint> () {
+        IncrementPoint (startPoint, 0),
+          IncrementPoint (startPoint, 1),
+          IncrementPoint (startPoint, 3),
+          IncrementPoint (startPoint, 0),
+          IncrementPoint (startPoint, 3),
+          IncrementPoint (startPoint, 4),
+          IncrementPoint (startPoint, 0),
+          IncrementPoint (startPoint, 4),
+          IncrementPoint (startPoint, 5),
+          IncrementPoint (startPoint, 0),
+          IncrementPoint (startPoint, 5),
+          IncrementPoint (startPoint, 7),
+      };
+    }
+
     private MutableMeshVertex CreateVertex (SquarePoint point) {
       SquareNode node = null;
       if (!nodes.TryGetValue (point, out node)) {
@@ -94,7 +117,12 @@ namespace MeshGeneration {
     }
 
     private static SquarePoint IncrementPoint (SquarePoint point, int increment) {
-      return (SquarePoint) (((int) point + increment) % 8);
+      int result = (int) point + increment;
+      bool resultIsPositive = result >= 0;
+      result = Math.Abs (result) % 8;
+      if (!resultIsPositive)
+        result = 8 - result;
+      return (SquarePoint) (result);
     }
 
     /// <summary>
@@ -123,7 +151,7 @@ namespace MeshGeneration {
         case SquarePoint.LeftCenter:
           return new Vector3 (0.0f, 0.5f, 0);
       }
-      throw new ArgumentException ("Unknown point");
+      throw new ArgumentException ("Unknown point " + point);
     }
   }
 }
