@@ -32,10 +32,8 @@ namespace MeshGeneration {
 
     public List<Vector3> GetVertexes () {
       var vertexes = new List<Vector3> ();
-      int vertexIndex = 0;
       foreach (var v in Vertexes) {
         vertexes.Add (v.Pos);
-        vertexIndex += 1;
       }
       return vertexes;
     }

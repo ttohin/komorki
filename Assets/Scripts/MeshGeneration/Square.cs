@@ -103,8 +103,8 @@ namespace MeshGeneration {
     }
 
     private MutableMeshVertex CreateVertex (SquarePoint point) {
-      SquareNode node = null;
-      if (!nodes.TryGetValue (point, out node)) {
+      SquareNode node = GetNode(point);
+      if (node == null) {
         throw new Exception ("Cannot get node for point " + point);
       }
 
@@ -114,6 +114,15 @@ namespace MeshGeneration {
       var pos = getAbsolutePosition (point);
       node.Vertex = mesh.CreateVertex (pos);
       return node.Vertex;
+    }
+
+    public SquareNode GetNode(SquarePoint point)
+    {
+      SquareNode node = null;
+      if (!nodes.TryGetValue (point, out node)) {
+        return null;
+      }
+      return node;
     }
 
     private static SquarePoint IncrementPoint (SquarePoint point, int increment) {
