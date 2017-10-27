@@ -40,8 +40,8 @@ namespace Komorki.Common {
   }
 
   public class ShapeAnalizer {
+    public static int scale = 4;
     public ShapeAnalizer (Buffer<bool> inputBuffer) {
-      const int scale = 4;
       internalBuffer = new Buffer<bool> (inputBuffer.width * scale, inputBuffer.height * scale);
       inputBuffer.Scale (scale, out internalBuffer);
       resultBuffer = new Buffer<Part> (internalBuffer.width, internalBuffer.height);

@@ -26,13 +26,12 @@ namespace MeshGeneration {
     private MutableMesh mesh;
     private List<SquarePoint> points;
 
-    public void SetPoints(List<SquarePoint> points)
-    {
+    public void SetPoints (List<SquarePoint> points) {
       if (this.points != null)
-        throw new Exception("points can be assigned only once");
+        throw new Exception ("points can be assigned only once");
 
       this.points = points;
-      Build();
+      Build ();
     }
 
     public static bool IsTop (SquarePoint point) {
@@ -199,6 +198,10 @@ namespace MeshGeneration {
     /// </summary>
     public Vector3 GetAbsolutePosition (SquarePoint point) {
       return Position + PositionFromPoint (point);
+    }
+
+    public static Vector3 PositionFromCenter (SquarePoint point) {
+      return new Vector3 (0.5f, 0.5f, 0) - PositionFromPoint (point)  ;
     }
 
     public static Vector3 PositionFromPoint (SquarePoint point) {

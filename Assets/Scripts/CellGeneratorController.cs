@@ -20,11 +20,22 @@ public class CellGeneratorController : MonoBehaviour {
     mutableMesh = new MeshGeneration.MutableMesh ();
     var shapeAnalizer = GenerateMap (map);
     CreateMesh (shapeAnalizer, mutableMesh);
+    CreateGizmos (map);
 
     var meshFilter = gameObject.GetComponent<MeshFilter> ();
+    Vector3[] vertices = mutableMesh.GetVertexes ().ToArray ();
+    int tileAmount = 2;
+    float textureSize = ShapeAnalizer.scale * map.width;
+    Vector2[] uvs = new Vector2[vertices.Length];
+    for (int i = 0; i < vertices.Length; i++) {
+      float percentX = Mathf.InverseLerp (0, textureSize, vertices[i].x) * tileAmount;
+      float percentY = Mathf.InverseLerp (0, textureSize, vertices[i].y) * tileAmount;
+      uvs[i] = new Vector2 (percentX, percentY);
+    }
     var mesh = new Mesh () {
-      vertices = mutableMesh.GetVertexes ().ToArray (),
+      vertices = vertices,
       triangles = mutableMesh.GetTriangles ().ToArray (),
+      uv = uvs,
     };
     meshFilter.sharedMesh = mesh;
   }
@@ -40,6 +51,17 @@ public class CellGeneratorController : MonoBehaviour {
     map.Set (true, 1, 3);
     map.Set (true, 0, 2);
     return new ShapeAnalizer (map);
+  }
+
+  private void CreateGizmos (Buffer<bool> map) {
+    map.ForEach ((bool value, int x, int y) => {
+      if (value) {
+        var boxCollider = gameObject.AddComponent<BoxCollider2D> ();
+        float boxSize = ShapeAnalizer.scale;
+        boxCollider.size = new Vector2 (boxSize, boxSize);
+        boxCollider.offset = new Vector2 (boxSize / 2.0f + x * ShapeAnalizer.scale, boxSize / 2.0f + y * ShapeAnalizer.scale);
+      }
+    });
   }
 
   static MeshGeneration.SquareGrid CreateMesh (ShapeAnalizer shapeAnalizer, MeshGeneration.MutableMesh mutableMesh) {
@@ -69,7 +91,7 @@ public class CellGeneratorController : MonoBehaviour {
       var square = grid.grid[x, y];
       square.SetPoints (MeshGeneration.Square.CreateBorder (GetOposite (point)));
       Vector3 borderOffset = Vector3.zero;
-      float offset = 0.4f;
+      float offset = 0.58f;
       if (point == MeshGeneration.SquarePoint.BottomCenter) {
         borderOffset = Vector3.down * offset;
         square.GetNode (MeshGeneration.SquarePoint.LeftCenter).Vertex.Pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.LeftCenter) + borderOffset;
@@ -91,12 +113,18 @@ public class CellGeneratorController : MonoBehaviour {
         square.GetNode (MeshGeneration.SquarePoint.BottomCenter).Vertex.Pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.BottomCenter) + borderOffset;
       }
 
-      if (borderOffset != Vector3.zero) {
-      }
+      if (borderOffset != Vector3.zero) { }
     }
     if (value.type == Part.Type.InnnerCornter) {
       var point = SquarePointFromPosition (value.position);
-      grid.grid[x, y].SetPoints (MeshGeneration.Square.CreateShorCorner (point));
+      var square = grid.grid[x, y];
+      square.SetPoints (MeshGeneration.Square.CreateShorCorner (point));
+      var point1 = MeshGeneration.Square.IncrementPoint(point, 1);
+      var point2 = MeshGeneration.Square.IncrementPoint(point, -1);
+      var pointOffset1 = MeshGeneration.Square.PositionFromCenter(point1).normalized * 0.3f;
+      var pointOffset2 = MeshGeneration.Square.PositionFromCenter(point2).normalized * 0.3f;
+      square.GetNode(point1).Vertex.Pos = square.GetAbsolutePosition(point1) + pointOffset1;
+      square.GetNode(point2).Vertex.Pos = square.GetAbsolutePosition(point2) + pointOffset2;
     }
     if (value.type == Part.Type.Bridge) {
       var point = SquarePointFromPosition (value.position);
