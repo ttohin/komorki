@@ -84,6 +84,36 @@ namespace MeshGeneration {
           IncrementPoint (startPoint, 7),
       };
     }
+    public static List<SquarePoint> CreateBorder (SquarePoint startPoint) {
+      return new List<SquarePoint> () {
+        IncrementPoint (startPoint, 7),
+          IncrementPoint (startPoint, 1),
+          IncrementPoint (startPoint, 6),
+        IncrementPoint (startPoint, 1),
+          IncrementPoint (startPoint, 2),
+          IncrementPoint (startPoint, 6),
+      };
+    }
+    public static List<SquarePoint> CreateRightBorderToCorner (SquarePoint startPoint) {
+      return new List<SquarePoint> () {
+        IncrementPoint (startPoint, 0),
+          IncrementPoint (startPoint, 2),
+          IncrementPoint (startPoint, 7),
+        IncrementPoint (startPoint, 2),
+          IncrementPoint (startPoint, 4),
+          IncrementPoint (startPoint, 7),
+      };
+    }
+    public static List<SquarePoint> CreatetLeftBorderToCorner (SquarePoint startPoint) {
+      return new List<SquarePoint> () {
+        IncrementPoint (startPoint, 0),
+          IncrementPoint (startPoint, 1),
+          IncrementPoint (startPoint, 6),
+        IncrementPoint (startPoint, 1),
+          IncrementPoint (startPoint, 4),
+          IncrementPoint (startPoint, 6),
+      };
+    }
 
     public static List<SquarePoint> CreateChannel (SquarePoint startPoint) {
       return new List<SquarePoint> () {
@@ -125,7 +155,7 @@ namespace MeshGeneration {
       return node;
     }
 
-    private static SquarePoint IncrementPoint (SquarePoint point, int increment) {
+    public static SquarePoint IncrementPoint (SquarePoint point, int increment) {
       int result = (int) point + increment;
       bool resultIsPositive = result >= 0;
       result = Math.Abs (result) % 8;
