@@ -20,15 +20,46 @@ namespace MeshGeneration {
   }
 
   public class Square {
-    private Vector3 pos;
+    public Vector3 Position;
     private SquarePoint startPoint;
     private Dictionary<SquarePoint, SquareNode> nodes;
     private MutableMesh mesh;
-    public List<SquarePoint> points;
+    private List<SquarePoint> points;
+
+    public void SetPoints(List<SquarePoint> points)
+    {
+      if (this.points != null)
+        throw new Exception("points can be assigned only once");
+
+      this.points = points;
+      Build();
+    }
+
+    public static bool IsTop (SquarePoint point) {
+      switch (point) {
+        case SquarePoint.TopLeft:
+        case SquarePoint.TopCenter:
+        case SquarePoint.TopRight:
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    public static bool IsBottom (SquarePoint point) {
+      switch (point) {
+        case SquarePoint.BottomLeft:
+        case SquarePoint.BottomCenter:
+        case SquarePoint.BottomRight:
+          return true;
+        default:
+          return false;
+      }
+    }
 
     public Square (MutableMesh mesh, Vector3 pos, List<SquarePoint> points) {
       this.mesh = mesh;
-      this.pos = pos;
+      this.Position = pos;
       this.nodes = new Dictionary<SquarePoint, SquareNode> ();
       this.points = points;
 
@@ -51,7 +82,7 @@ namespace MeshGeneration {
       }
     }
 
-    public void Build () {
+    private void Build () {
       if (points == null)
         return;
 
@@ -89,7 +120,7 @@ namespace MeshGeneration {
         IncrementPoint (startPoint, 7),
           IncrementPoint (startPoint, 1),
           IncrementPoint (startPoint, 6),
-        IncrementPoint (startPoint, 1),
+          IncrementPoint (startPoint, 1),
           IncrementPoint (startPoint, 2),
           IncrementPoint (startPoint, 6),
       };
@@ -99,7 +130,7 @@ namespace MeshGeneration {
         IncrementPoint (startPoint, 0),
           IncrementPoint (startPoint, 2),
           IncrementPoint (startPoint, 7),
-        IncrementPoint (startPoint, 2),
+          IncrementPoint (startPoint, 2),
           IncrementPoint (startPoint, 4),
           IncrementPoint (startPoint, 7),
       };
@@ -109,7 +140,7 @@ namespace MeshGeneration {
         IncrementPoint (startPoint, 0),
           IncrementPoint (startPoint, 1),
           IncrementPoint (startPoint, 6),
-        IncrementPoint (startPoint, 1),
+          IncrementPoint (startPoint, 1),
           IncrementPoint (startPoint, 4),
           IncrementPoint (startPoint, 6),
       };
@@ -133,7 +164,7 @@ namespace MeshGeneration {
     }
 
     private MutableMeshVertex CreateVertex (SquarePoint point) {
-      SquareNode node = GetNode(point);
+      SquareNode node = GetNode (point);
       if (node == null) {
         throw new Exception ("Cannot get node for point " + point);
       }
@@ -141,13 +172,12 @@ namespace MeshGeneration {
       if (node.Vertex != null)
         return node.Vertex;
 
-      var pos = getAbsolutePosition (point);
+      var pos = GetAbsolutePosition (point);
       node.Vertex = mesh.CreateVertex (pos);
       return node.Vertex;
     }
 
-    public SquareNode GetNode(SquarePoint point)
-    {
+    public SquareNode GetNode (SquarePoint point) {
       SquareNode node = null;
       if (!nodes.TryGetValue (point, out node)) {
         return null;
@@ -167,8 +197,8 @@ namespace MeshGeneration {
     /// <summary>
     /// Return position for a square point considering the square position
     /// </summary>
-    private Vector3 getAbsolutePosition (SquarePoint point) {
-      return pos + PositionFromPoint (point);
+    public Vector3 GetAbsolutePosition (SquarePoint point) {
+      return Position + PositionFromPoint (point);
     }
 
     public static Vector3 PositionFromPoint (SquarePoint point) {

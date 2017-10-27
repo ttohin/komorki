@@ -13,8 +13,7 @@ public class MeshGenerator : MonoBehaviour {
 
     mutableMesh = new MeshGeneration.MutableMesh ();
     var grid = new MeshGeneration.SquareGrid (10, 10, mutableMesh);
-    grid.grid[0, 0].points = MeshGeneration.Square.CreateShorCorner(MeshGeneration.SquarePoint.BottomLeft);
-    grid.Build ();
+    grid.grid[0, 0].SetPoints(MeshGeneration.Square.CreateShorCorner(MeshGeneration.SquarePoint.BottomLeft));
     savedMesh = new MeshGeneration.Mesh(mutableMesh);
 
     MeshGeneration.SquareNode node = grid.grid[0, 0].GetNode (MeshGeneration.SquarePoint.BottomLeft);

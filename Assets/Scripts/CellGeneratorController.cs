@@ -19,8 +19,7 @@ public class CellGeneratorController : MonoBehaviour {
 
     mutableMesh = new MeshGeneration.MutableMesh ();
     var shapeAnalizer = GenerateMap (map);
-    var grid = CreateMesh (shapeAnalizer, mutableMesh);
-    grid.Build ();
+    CreateMesh (shapeAnalizer, mutableMesh);
 
     var meshFilter = gameObject.GetComponent<MeshFilter> ();
     var mesh = new Mesh () {
@@ -52,62 +51,90 @@ public class CellGeneratorController : MonoBehaviour {
     );
 
     shapeAnalizer.resultBuffer.ForEach ((value, x, y) => {
-
-      if (value.type == Part.Type.Fill)
-        grid.grid[x, y].points = MeshGeneration.Square.CreateSquareFromPoint (MeshGeneration.SquarePoint.BottomLeft);
-      if (value.type == Part.Type.Corner) {
-        var point = SquarePointFromPosition (value.position);
-        grid.grid[x, y].points = MeshGeneration.Square.CreateShorCorner (GetOposite (point));
-      }
-      if (value.type == Part.Type.Border) {
-        var point = SquarePointFromPosition (value.position);
-        grid.grid[x, y].points = MeshGeneration.Square.CreateBorder (GetOposite (point));
-      }
-      if (value.type == Part.Type.InnnerCornter) {
-        var point = SquarePointFromPosition (value.position);
-        grid.grid[x, y].points = MeshGeneration.Square.CreateShorCorner (point);
-      }
-      if (value.type == Part.Type.Bridge) {
-        var point = SquarePointFromPosition (value.position);
-        grid.grid[x, y].points = MeshGeneration.Square.CreateChannel (point);
-      }
-      if (
-        value.type == Part.Type.BorderBottomToCorner ||
-        value.type == Part.Type.BorderLeftToCorner ||
-        value.type == Part.Type.BorderRightToCorner ||
-        value.type == Part.Type.BorderTopToCorner
-      ) {
-
-        var point = SquarePointFromPosition (value.position);
-        if (value.type == Part.Type.BorderRightToCorner) {
-          if (value.position == Part.Position.Bottom)
-            grid.grid[x, y].points = MeshGeneration.Square.CreatetLeftBorderToCorner(IncrementPoint(point, 3));
-          else
-            grid.grid[x, y].points = MeshGeneration.Square.CreateRightBorderToCorner(IncrementPoint(point, -3));
-        }
-        if (value.type == Part.Type.BorderLeftToCorner) {
-          if (value.position == Part.Position.Bottom)
-            grid.grid[x, y].points = MeshGeneration.Square.CreateRightBorderToCorner(IncrementPoint(point, -3));
-          else
-            grid.grid[x, y].points = MeshGeneration.Square.CreatetLeftBorderToCorner(IncrementPoint(point, 3));
-        }
-        if (value.type == Part.Type.BorderTopToCorner) {
-          if (value.position == Part.Position.Right)
-            grid.grid[x, y].points = MeshGeneration.Square.CreatetLeftBorderToCorner(IncrementPoint(point, 3));
-          else
-            grid.grid[x, y].points = MeshGeneration.Square.CreateRightBorderToCorner(IncrementPoint(point, -3));
-        }
-        if (value.type == Part.Type.BorderBottomToCorner) {
-          if (value.position == Part.Position.Right)
-            grid.grid[x, y].points = MeshGeneration.Square.CreateRightBorderToCorner(IncrementPoint(point, -3));
-          else
-            grid.grid[x, y].points = MeshGeneration.Square.CreatetLeftBorderToCorner(IncrementPoint(point, 3));
-        }
-
-      }
+      BuildSquare (grid, x, y, value);
     });
 
     return grid;
+  }
+
+  static void BuildSquare (MeshGeneration.SquareGrid grid, int x, int y, Part value) {
+    if (value.type == Part.Type.Fill)
+      grid.grid[x, y].SetPoints (MeshGeneration.Square.CreateSquareFromPoint (MeshGeneration.SquarePoint.BottomLeft));
+    if (value.type == Part.Type.Corner) {
+      var point = SquarePointFromPosition (value.position);
+      grid.grid[x, y].SetPoints (MeshGeneration.Square.CreateShorCorner (GetOposite (point)));
+    }
+    if (value.type == Part.Type.Border) {
+      var point = SquarePointFromPosition (value.position);
+      var square = grid.grid[x, y];
+      square.SetPoints (MeshGeneration.Square.CreateBorder (GetOposite (point)));
+      Vector3 borderOffset = Vector3.zero;
+      float offset = 0.4f;
+      if (point == MeshGeneration.SquarePoint.BottomCenter) {
+        borderOffset = Vector3.down * offset;
+        square.GetNode (MeshGeneration.SquarePoint.LeftCenter).Vertex.Pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.LeftCenter) + borderOffset;
+        square.GetNode (MeshGeneration.SquarePoint.RightCenter).Vertex.Pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.RightCenter) + borderOffset;
+      }
+      if (point == MeshGeneration.SquarePoint.TopCenter) {
+        borderOffset = Vector3.up * offset;
+        square.GetNode (MeshGeneration.SquarePoint.LeftCenter).Vertex.Pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.LeftCenter) + borderOffset;
+        square.GetNode (MeshGeneration.SquarePoint.RightCenter).Vertex.Pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.RightCenter) + borderOffset;
+      }
+      if (point == MeshGeneration.SquarePoint.LeftCenter) {
+        borderOffset = Vector3.left * offset;
+        square.GetNode (MeshGeneration.SquarePoint.TopCenter).Vertex.Pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.TopCenter) + borderOffset;
+        square.GetNode (MeshGeneration.SquarePoint.BottomCenter).Vertex.Pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.BottomCenter) + borderOffset;
+      }
+      if (point == MeshGeneration.SquarePoint.RightCenter) {
+        borderOffset = Vector3.right * offset;
+        square.GetNode (MeshGeneration.SquarePoint.TopCenter).Vertex.Pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.TopCenter) + borderOffset;
+        square.GetNode (MeshGeneration.SquarePoint.BottomCenter).Vertex.Pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.BottomCenter) + borderOffset;
+      }
+
+      if (borderOffset != Vector3.zero) {
+      }
+    }
+    if (value.type == Part.Type.InnnerCornter) {
+      var point = SquarePointFromPosition (value.position);
+      grid.grid[x, y].SetPoints (MeshGeneration.Square.CreateShorCorner (point));
+    }
+    if (value.type == Part.Type.Bridge) {
+      var point = SquarePointFromPosition (value.position);
+      grid.grid[x, y].SetPoints (MeshGeneration.Square.CreateChannel (point));
+    }
+    if (
+      value.type == Part.Type.BorderBottomToCorner ||
+      value.type == Part.Type.BorderLeftToCorner ||
+      value.type == Part.Type.BorderRightToCorner ||
+      value.type == Part.Type.BorderTopToCorner
+    ) {
+      var point = SquarePointFromPosition (value.position);
+      if (value.type == Part.Type.BorderRightToCorner) {
+        if (value.position == Part.Position.Bottom)
+          grid.grid[x, y].SetPoints (MeshGeneration.Square.CreatetLeftBorderToCorner (IncrementPoint (point, 3)));
+        else
+          grid.grid[x, y].SetPoints (MeshGeneration.Square.CreateRightBorderToCorner (IncrementPoint (point, -3)));
+      }
+      if (value.type == Part.Type.BorderLeftToCorner) {
+        if (value.position == Part.Position.Bottom)
+          grid.grid[x, y].SetPoints (MeshGeneration.Square.CreateRightBorderToCorner (IncrementPoint (point, -3)));
+        else
+          grid.grid[x, y].SetPoints (MeshGeneration.Square.CreatetLeftBorderToCorner (IncrementPoint (point, 3)));
+      }
+      if (value.type == Part.Type.BorderTopToCorner) {
+        if (value.position == Part.Position.Right)
+          grid.grid[x, y].SetPoints (MeshGeneration.Square.CreatetLeftBorderToCorner (IncrementPoint (point, 3)));
+        else
+          grid.grid[x, y].SetPoints (MeshGeneration.Square.CreateRightBorderToCorner (IncrementPoint (point, -3)));
+      }
+      if (value.type == Part.Type.BorderBottomToCorner) {
+        if (value.position == Part.Position.Right)
+          grid.grid[x, y].SetPoints (MeshGeneration.Square.CreateRightBorderToCorner (IncrementPoint (point, -3)));
+        else
+          grid.grid[x, y].SetPoints (MeshGeneration.Square.CreatetLeftBorderToCorner (IncrementPoint (point, 3)));
+      }
+
+    }
   }
 
   public static MeshGeneration.SquarePoint BorderToCornerConvert (Part position) {
