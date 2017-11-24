@@ -162,6 +162,20 @@ namespace MeshGeneration {
       };
     }
 
+    public static List<SquarePoint> CreateInnerCornerFill (SquarePoint startPoint) {
+      return new List<SquarePoint> () {
+          IncrementPoint (startPoint, 1),
+          IncrementPoint (startPoint, 2),
+          IncrementPoint (startPoint, 4),
+          IncrementPoint (startPoint, 1),
+          IncrementPoint (startPoint, 4),
+          IncrementPoint (startPoint, 7),
+          IncrementPoint (startPoint, 4),
+          IncrementPoint (startPoint, 6),
+          IncrementPoint (startPoint, 7),
+      };
+    }
+
     private MutableMeshVertex CreateVertex (SquarePoint point) {
       SquareNode node = GetNode (point);
       if (node == null) {

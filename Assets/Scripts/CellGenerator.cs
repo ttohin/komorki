@@ -12,7 +12,8 @@ namespace Komorki.Common {
       BorderRightToCorner,
       Bridge,
       Fill,
-      InnnerCornter
+      InnnerCornter,
+      InnnerCornterFill
     }
 
     public enum Position {
@@ -59,14 +60,16 @@ namespace Komorki.Common {
         } else {
           int nSquare = CountNeighborsSquare (x, y);
           int nDiamond = CountNeighborsDiamond (x, y);
-          if (nSquare == 4) {
+          if (nSquare == 4 && nDiamond == 3) {
+            AnalizeInnerCornerFill (x, y, out part);
+          } else if (nSquare == 4) {
             part.type = Part.Type.Fill;
           } else if (nSquare == 2 && nDiamond == 1) {
             AnalizeCorner (x, y, out part);
           } else if (nSquare == 3 && nDiamond == 2) {
             AnalizeBorder (x, y, out part);
           } else if (nSquare == 3 && nDiamond == 3) {
-            AnalizeBorderToCorner (x, y, out part);
+            AnalizeBorder (x, y, out part);
           } else if (nSquare == 2 && nDiamond == 2) {
             AnalizeBridge (x, y, out part);
           }
@@ -98,6 +101,22 @@ namespace Komorki.Common {
       if (internalBuffer.Get (x - 1, y + 1, out value) && value == true) count += 1;
       if (internalBuffer.Get (x + 1, y - 1, out value) && value == true) count += 1;
       return count;
+    }
+
+    void AnalizeInnerCornerFill (int x, int y, out Part result) {
+      result = new Part ();
+      bool value;
+      if (!internalBuffer.Get (x + 1, y - 1, out value) || value == false) {
+        result.position = Part.Position.TopLeft;
+      } else if (!internalBuffer.Get (x - 1, y - 1, out value) || value == false) {
+        result.position = Part.Position.TopRight;
+      } else if (!internalBuffer.Get (x + 1, y + 1, out value) || value == false) {
+        result.position = Part.Position.BottomLeft;
+      } else if (!internalBuffer.Get (x - 1, y + 1, out value) || value == false) {
+        result.position = Part.Position.BottomRight;
+      }
+
+      result.type = Part.Type.InnnerCornterFill;
     }
 
     void AnalizeCorner (int x, int y, out Part result) {

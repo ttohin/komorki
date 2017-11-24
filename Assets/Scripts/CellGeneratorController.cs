@@ -86,6 +86,17 @@ public class CellGeneratorController : MonoBehaviour {
       var point = SquarePointFromPosition (value.position);
       grid.grid[x, y].SetPoints (MeshGeneration.Square.CreateShorCorner (GetOposite (point)));
     }
+    if (value.type == Part.Type.InnnerCornterFill) {
+      var point = GetOposite(SquarePointFromPosition (value.position));
+      var square = grid.grid[x, y];
+      square.SetPoints (MeshGeneration.Square.CreateInnerCornerFill (point));
+      var point1 = MeshGeneration.Square.IncrementPoint (point, 1);
+      var point2 = MeshGeneration.Square.IncrementPoint (point, -1);
+      var pointOffset1 = MeshGeneration.Square.PositionFromCenter (point1).normalized * -0.58f;
+      var pointOffset2 = MeshGeneration.Square.PositionFromCenter (point2).normalized * -0.58f;
+      square.GetNode (point1).Vertex.Pos += pointOffset1;
+      square.GetNode (point2).Vertex.Pos += pointOffset2;
+    }
     if (value.type == Part.Type.Border) {
       var point = SquarePointFromPosition (value.position);
       var square = grid.grid[x, y];
@@ -94,23 +105,31 @@ public class CellGeneratorController : MonoBehaviour {
       float offset = 0.58f;
       if (point == MeshGeneration.SquarePoint.BottomCenter) {
         borderOffset = Vector3.down * offset;
-        square.GetNode (MeshGeneration.SquarePoint.LeftCenter).Vertex.Pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.LeftCenter) + borderOffset;
-        square.GetNode (MeshGeneration.SquarePoint.RightCenter).Vertex.Pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.RightCenter) + borderOffset;
+        var pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.LeftCenter) + borderOffset;
+        square.GetNode (MeshGeneration.SquarePoint.LeftCenter).Vertex.Pos.y = pos.y;
+        pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.RightCenter) + borderOffset;
+        square.GetNode (MeshGeneration.SquarePoint.RightCenter).Vertex.Pos.y = pos.y;
       }
       if (point == MeshGeneration.SquarePoint.TopCenter) {
         borderOffset = Vector3.up * offset;
-        square.GetNode (MeshGeneration.SquarePoint.LeftCenter).Vertex.Pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.LeftCenter) + borderOffset;
-        square.GetNode (MeshGeneration.SquarePoint.RightCenter).Vertex.Pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.RightCenter) + borderOffset;
+        var pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.LeftCenter) + borderOffset;
+        square.GetNode (MeshGeneration.SquarePoint.LeftCenter).Vertex.Pos.y = pos.y;
+        pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.RightCenter) + borderOffset;
+        square.GetNode (MeshGeneration.SquarePoint.RightCenter).Vertex.Pos.y = pos.y;
       }
       if (point == MeshGeneration.SquarePoint.LeftCenter) {
         borderOffset = Vector3.left * offset;
-        square.GetNode (MeshGeneration.SquarePoint.TopCenter).Vertex.Pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.TopCenter) + borderOffset;
-        square.GetNode (MeshGeneration.SquarePoint.BottomCenter).Vertex.Pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.BottomCenter) + borderOffset;
+        var pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.TopCenter) + borderOffset;
+        square.GetNode (MeshGeneration.SquarePoint.TopCenter).Vertex.Pos.x = pos.x;
+        pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.BottomCenter) + borderOffset;
+        square.GetNode (MeshGeneration.SquarePoint.BottomCenter).Vertex.Pos.x = pos.x;
       }
       if (point == MeshGeneration.SquarePoint.RightCenter) {
         borderOffset = Vector3.right * offset;
-        square.GetNode (MeshGeneration.SquarePoint.TopCenter).Vertex.Pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.TopCenter) + borderOffset;
-        square.GetNode (MeshGeneration.SquarePoint.BottomCenter).Vertex.Pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.BottomCenter) + borderOffset;
+        var pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.TopCenter) + borderOffset;
+        square.GetNode (MeshGeneration.SquarePoint.TopCenter).Vertex.Pos.x = pos.x;
+        pos = square.GetAbsolutePosition (MeshGeneration.SquarePoint.BottomCenter) + borderOffset;
+        square.GetNode (MeshGeneration.SquarePoint.BottomCenter).Vertex.Pos.x = pos.x;
       }
 
       if (borderOffset != Vector3.zero) { }
@@ -119,12 +138,12 @@ public class CellGeneratorController : MonoBehaviour {
       var point = SquarePointFromPosition (value.position);
       var square = grid.grid[x, y];
       square.SetPoints (MeshGeneration.Square.CreateShorCorner (point));
-      var point1 = MeshGeneration.Square.IncrementPoint(point, 1);
-      var point2 = MeshGeneration.Square.IncrementPoint(point, -1);
-      var pointOffset1 = MeshGeneration.Square.PositionFromCenter(point1).normalized * 0.3f;
-      var pointOffset2 = MeshGeneration.Square.PositionFromCenter(point2).normalized * 0.3f;
-      square.GetNode(point1).Vertex.Pos = square.GetAbsolutePosition(point1) + pointOffset1;
-      square.GetNode(point2).Vertex.Pos = square.GetAbsolutePosition(point2) + pointOffset2;
+      var point1 = MeshGeneration.Square.IncrementPoint (point, 1);
+      var point2 = MeshGeneration.Square.IncrementPoint (point, -1);
+      var pointOffset1 = MeshGeneration.Square.PositionFromCenter (point1).normalized * 0.3f;
+      var pointOffset2 = MeshGeneration.Square.PositionFromCenter (point2).normalized * 0.3f;
+      square.GetNode (point1).Vertex.Pos = square.GetAbsolutePosition (point1) + pointOffset1;
+      square.GetNode (point2).Vertex.Pos = square.GetAbsolutePosition (point2) + pointOffset2;
     }
     if (value.type == Part.Type.Bridge) {
       var point = SquarePointFromPosition (value.position);
