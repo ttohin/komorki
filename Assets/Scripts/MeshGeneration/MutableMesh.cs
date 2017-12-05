@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
@@ -57,7 +57,7 @@ namespace MeshGeneration {
     }
 
     public MutableMeshTriangle CreateTriangle (List<MutableMeshVertex> vertices) {
-      return CreateTriangle(vertices[0], vertices[1], vertices[2]);
+      return CreateTriangle (vertices[0], vertices[1], vertices[2]);
     }
 
     public MutableMeshTriangle CreateTriangle (MutableMeshVertex v1, MutableMeshVertex v2, MutableMeshVertex v3) {

@@ -12,7 +12,7 @@ namespace MeshGeneration {
 
       for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
-          grid[i, j] = new Square (mesh, new Vector3 (i,  j, 0), null);
+          grid[i, j] = new Square (mesh, new Vector3 (i, j, 0), null);
         }
       }
 

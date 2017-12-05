@@ -2,7 +2,6 @@ using System;
 using MeshGeneration;
 using UnityEngine;
 
-
 public class AnimatedVertex {
   public Vector3 initialPosition;
   private MutableMeshVertex vertex;
@@ -12,7 +11,7 @@ public class AnimatedVertex {
   private bool completed = false;
   public AnimatedVertex (MutableMeshVertex vertex, float speed, Action completion) {
     if (vertex == null)
-      throw new ArgumentNullException("vertex cannot be null");
+      throw new ArgumentNullException ("vertex cannot be null");
     this.vertex = vertex;
     this.speed = speed;
     initialPosition = vertex.Pos;
@@ -31,7 +30,7 @@ public class AnimatedVertex {
     var offset = targetPosition - vertex.Pos;
     if (offset.sqrMagnitude < 0.001f) {
       completed = true;
-      completion();
+      completion ();
       return;
     }
 

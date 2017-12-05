@@ -4,15 +4,22 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace MeshGeneration {
+
+  public enum SquareBaseShape {
+    Empty,
+    Triangle,
+    Square
+  }
   public enum SquarePoint {
     BottomLeft = 0,
-      LeftCenter = 1,
-      TopLeft = 2,
-      TopCenter = 3,
-      TopRight = 4,
-      RightCenter = 5,
-      BottomRight = 6,
-      BottomCenter = 7,
+    LeftCenter = 1,
+    TopLeft = 2,
+    TopCenter = 3,
+    TopRight = 4,
+    RightCenter = 5,
+    BottomRight = 6,
+    BottomCenter = 7,
+    Center = 8,
   }
 
   public class SquareNode {
@@ -22,15 +29,24 @@ namespace MeshGeneration {
   public class Square {
     public Vector3 Position;
     private SquarePoint startPoint;
+    private SquareBaseShape shape;
     private Dictionary<SquarePoint, SquareNode> nodes;
     private MutableMesh mesh;
     private List<SquarePoint> points;
 
-    public void SetPoints (List<SquarePoint> points) {
-      if (this.points != null)
-        throw new Exception ("points can be assigned only once");
+    public void Init (SquarePoint startPoint, SquareBaseShape shape) {
+      if (startPoint == SquarePoint.Center)
+        throw new ArgumentException ("start point can't be Center");
 
-      this.points = points;
+      if (shape == SquareBaseShape.Triangle)
+        points = CreateTriangle (startPoint);
+      else if (shape == SquareBaseShape.Square)
+        points = CreateSquare (startPoint);
+      else if (shape == SquareBaseShape.Empty)
+        points = new List<SquarePoint> ();
+      else
+        throw new ArgumentException (string.Format ("unknown shape '{0}'", shape));
+
       Build ();
     }
 
@@ -96,83 +112,22 @@ namespace MeshGeneration {
       }
     }
 
-    public static List<SquarePoint> CreateSquareFromPoint (SquarePoint startPoint) {
+    public static List<SquarePoint> CreateTriangle (SquarePoint startPoint) {
       return new List<SquarePoint> () {
         IncrementPoint (startPoint, 0),
           IncrementPoint (startPoint, 2),
-          IncrementPoint (startPoint, 4),
-          IncrementPoint (startPoint, 0),
-          IncrementPoint (startPoint, 4),
           IncrementPoint (startPoint, 6),
       };
     }
 
-    public static List<SquarePoint> CreateShorCorner (SquarePoint startPoint) {
-      return new List<SquarePoint> () {
-        IncrementPoint (startPoint, 0),
-          IncrementPoint (startPoint, 1),
-          IncrementPoint (startPoint, 7),
-      };
-    }
-    public static List<SquarePoint> CreateBorder (SquarePoint startPoint) {
-      return new List<SquarePoint> () {
-        IncrementPoint (startPoint, 7),
-          IncrementPoint (startPoint, 1),
-          IncrementPoint (startPoint, 6),
-          IncrementPoint (startPoint, 1),
-          IncrementPoint (startPoint, 2),
-          IncrementPoint (startPoint, 6),
-      };
-    }
-    public static List<SquarePoint> CreateRightBorderToCorner (SquarePoint startPoint) {
+    public static List<SquarePoint> CreateSquare (SquarePoint startPoint) {
       return new List<SquarePoint> () {
         IncrementPoint (startPoint, 0),
           IncrementPoint (startPoint, 2),
-          IncrementPoint (startPoint, 7),
+          IncrementPoint (startPoint, 6),
           IncrementPoint (startPoint, 2),
           IncrementPoint (startPoint, 4),
-          IncrementPoint (startPoint, 7),
-      };
-    }
-    public static List<SquarePoint> CreatetLeftBorderToCorner (SquarePoint startPoint) {
-      return new List<SquarePoint> () {
-        IncrementPoint (startPoint, 0),
-          IncrementPoint (startPoint, 1),
           IncrementPoint (startPoint, 6),
-          IncrementPoint (startPoint, 1),
-          IncrementPoint (startPoint, 4),
-          IncrementPoint (startPoint, 6),
-      };
-    }
-
-    public static List<SquarePoint> CreateChannel (SquarePoint startPoint) {
-      return new List<SquarePoint> () {
-        IncrementPoint (startPoint, 0),
-          IncrementPoint (startPoint, 1),
-          IncrementPoint (startPoint, 3),
-          IncrementPoint (startPoint, 0),
-          IncrementPoint (startPoint, 3),
-          IncrementPoint (startPoint, 4),
-          IncrementPoint (startPoint, 0),
-          IncrementPoint (startPoint, 4),
-          IncrementPoint (startPoint, 5),
-          IncrementPoint (startPoint, 0),
-          IncrementPoint (startPoint, 5),
-          IncrementPoint (startPoint, 7),
-      };
-    }
-
-    public static List<SquarePoint> CreateInnerCornerFill (SquarePoint startPoint) {
-      return new List<SquarePoint> () {
-          IncrementPoint (startPoint, 1),
-          IncrementPoint (startPoint, 2),
-          IncrementPoint (startPoint, 4),
-          IncrementPoint (startPoint, 1),
-          IncrementPoint (startPoint, 4),
-          IncrementPoint (startPoint, 7),
-          IncrementPoint (startPoint, 4),
-          IncrementPoint (startPoint, 6),
-          IncrementPoint (startPoint, 7),
       };
     }
 
@@ -215,7 +170,7 @@ namespace MeshGeneration {
     }
 
     public static Vector3 PositionFromCenter (SquarePoint point) {
-      return new Vector3 (0.5f, 0.5f, 0) - PositionFromPoint (point)  ;
+      return new Vector3 (0.5f, 0.5f, 0) - PositionFromPoint (point);
     }
 
     public static Vector3 PositionFromPoint (SquarePoint point) {
@@ -236,6 +191,8 @@ namespace MeshGeneration {
           return new Vector3 (0.0f, 1.0f, 0);
         case SquarePoint.LeftCenter:
           return new Vector3 (0.0f, 0.5f, 0);
+        case SquarePoint.Center:
+          return new Vector3 (0.5f, 0.5f, 0);
       }
       throw new ArgumentException ("Unknown point " + point);
     }
