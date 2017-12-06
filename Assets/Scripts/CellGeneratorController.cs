@@ -30,7 +30,7 @@ public class CellGeneratorController : MonoBehaviour {
 
     var meshFilter = gameObject.GetComponent<MeshFilter> ();
     Vector3[] vertices = mutableMesh.GetVertexes ().ToArray ();
-    int tileAmount = 2;
+    float tileAmount = 0.5f;
     float textureSize = ShapeAnalizer.scale * map.width;
     Vector2[] uvs = new Vector2[vertices.Length];
     for (int i = 0; i < vertices.Length; i++) {
@@ -42,6 +42,7 @@ public class CellGeneratorController : MonoBehaviour {
       vertices = vertices,
       triangles = mutableMesh.GetTriangles ().ToArray (),
       uv = uvs,
+      uv2 = uvs,
     };
     mesh.RecalculateTangents ();
     mesh.RecalculateNormals ();
