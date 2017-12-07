@@ -28,7 +28,6 @@ public class CellGeneratorController : MonoBehaviour {
     );
 
     shapeAnalizer = GenerateMap (map, grid);
-    CreateGizmos (map);
 
     var meshFilter = gameObject.GetComponent<MeshFilter> ();
     Vector3[] vertices = mutableMesh.GetVertexes ().ToArray ();
@@ -51,22 +50,22 @@ public class CellGeneratorController : MonoBehaviour {
     mesh.RecalculateBounds ();
     meshFilter.sharedMesh = mesh;
 
-    GetComponent<Renderer>().material.color = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
+    GetComponent<Renderer> ().material.color = Random.ColorHSV (0f, 1f, 1f, 1f, 0.5f, 1f);
   }
 
   void Update () {
 
     moveBorder += Time.deltaTime * moveBorderSpeed;
     if (moveBorder > 1.0f) {
-      moveBorder = 1.0f;
-      moveBorderSpeed *= -1;
-    } else if (moveBorder < 0.0f) {
       moveBorder = 0.0f;
-      moveBorderSpeed *= -1;
     }
 
+    int totalVertexCount = shapeAnalizer.animatedBorderVertices.Count;
+    int vertexIndex = 0;
     foreach (var animatedBoderVertex in shapeAnalizer.animatedBorderVertices) {
-      animatedBoderVertex.SetRatio (moveBorder);
+      var ratio = 0.5f * (1 + Mathf.Sin (2 * Mathf.PI * vertexIndex / totalVertexCount + (2 * Mathf.PI * moveBorder)));
+      vertexIndex += 1;
+      animatedBoderVertex.SetRatio (ratio);
     }
 
     var meshFilter = GetComponent<MeshFilter> ();
