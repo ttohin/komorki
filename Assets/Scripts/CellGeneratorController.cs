@@ -10,6 +10,10 @@ public class CellGeneratorController : MonoBehaviour {
   System.Random pseudoRandom;
   public Vector2[] UV;
   MutableMesh mutableMesh;
+  ShapeAnalizer shapeAnalizer;
+  [Range (0, 1)]
+  public float moveBorder = 0.0f;
+  public float moveBorderSpeed = 0.7f;
 
   void Start () {
 
@@ -25,7 +29,8 @@ public class CellGeneratorController : MonoBehaviour {
       map.height * ShapeAnalizer.scale,
       mutableMesh
     );
-    var shapeAnalizer = GenerateMap (map, grid);
+
+    shapeAnalizer = GenerateMap (map, grid);
     CreateGizmos (map);
 
     var meshFilter = gameObject.GetComponent<MeshFilter> ();
@@ -50,7 +55,24 @@ public class CellGeneratorController : MonoBehaviour {
     meshFilter.sharedMesh = mesh;
   }
 
-  void Update () { }
+  void Update () {
+
+    moveBorder += Time.deltaTime * moveBorderSpeed;
+    if (moveBorder > 1.0f) {
+      moveBorder = 1.0f;
+      moveBorderSpeed *= -1;
+    } else if (moveBorder < 0.0f) {
+      moveBorder = 0.0f;
+      moveBorderSpeed *= -1;
+    }
+
+    foreach (var animatedBoderVertex in shapeAnalizer.animatedBorderVertices) {
+      animatedBoderVertex.SetRatio (moveBorder);
+    }
+
+    var meshFilter = GetComponent<MeshFilter> ();
+    meshFilter.mesh.vertices = mutableMesh.GetVertexes ().ToArray ();
+  }
 
   ShapeAnalizer GenerateMap (Buffer<bool> map, SquareGrid grid) {
     map.Fill (false);

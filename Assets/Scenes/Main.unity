@@ -308,6 +308,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   seed: 
   UV: []
+  moveBorder: 0
+  moveBorderSpeed: 0.7
 --- !u!4 &799128214
 Transform:
   m_ObjectHideFlags: 0

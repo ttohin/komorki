@@ -1,11 +1,21 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using MeshGeneration;
 using UnityEngine;
 
 namespace Komorki.Common {
 
+  public class BorderVertex
+  {
+    public SquareNode node;
+    public Vector3 directionOutside;
+  }
+
   public class ShapeAnalizer {
     public static int scale = 3;
+    public List<AnimatedBorderVertex> animatedBorderVertices = new List<AnimatedBorderVertex>();
+    public List<BorderVertex> borderVertices = new List<BorderVertex>();
     public ShapeAnalizer (Buffer<bool> inputBuffer, SquareGrid grid) {
 
       if (grid.width != inputBuffer.width * scale || grid.height != inputBuffer.height * scale)
@@ -19,8 +29,8 @@ namespace Komorki.Common {
           }
         }
       });
-      internalBuffer.ForEach ((value, x, y) => {
 
+      internalBuffer.ForEach ((value, x, y) => {
         if (value == 0) {
           int nSquare = CountNeighborsSquare (internalBuffer, x, y);
           int nDiamond = CountNeighborsDiamond (internalBuffer, x, y);
@@ -46,6 +56,13 @@ namespace Komorki.Common {
           }
         }
       });
+
+      foreach (var borderVertex in borderVertices)
+      {
+        float outsideMaxDistance = 0.2f;
+        var vertex = borderVertex.node.Vertex;
+        animatedBorderVertices.Add(new AnimatedBorderVertex(vertex.Pos, vertex.Pos + borderVertex.directionOutside * outsideMaxDistance, vertex));
+      }
     }
 
     int CountNeighborsSquare (Buffer<int> buffer, int x, int y) {
@@ -82,6 +99,14 @@ namespace Komorki.Common {
         var pointPos2 = square.GetAbsolutePosition (point2) + pointOffset2;
         square.GetNode (point1).Vertex.Pos.x = pointPos1.x;
         square.GetNode (point2).Vertex.Pos.x = pointPos2.x;
+        borderVertices.Add(new BorderVertex{
+          node = square.GetNode(point1),
+          directionOutside = pointOffset1.normalized,
+        });
+        borderVertices.Add(new BorderVertex{
+          node = square.GetNode(point2),
+          directionOutside = pointOffset2.normalized,
+        });
       } else if (!buffer.Get (x + 1, y, out value) || value == 0) {
         var point1 = SquarePoint.BottomRight;
         var point2 = SquarePoint.TopRight;
@@ -91,6 +116,14 @@ namespace Komorki.Common {
         var pointPos2 = square.GetAbsolutePosition (point2) + pointOffset2;
         square.GetNode (point1).Vertex.Pos.x = pointPos1.x;
         square.GetNode (point2).Vertex.Pos.x = pointPos2.x;
+        borderVertices.Add(new BorderVertex{
+          node = square.GetNode(point1),
+          directionOutside = pointOffset1.normalized,
+        });
+        borderVertices.Add(new BorderVertex{
+          node = square.GetNode(point2),
+          directionOutside = pointOffset2.normalized,
+        });
       } else if (!buffer.Get (x, y - 1, out value) || value == 0) {
         var point1 = SquarePoint.BottomLeft;
         var point2 = SquarePoint.BottomRight;
@@ -100,6 +133,14 @@ namespace Komorki.Common {
         var pointPos2 = square.GetAbsolutePosition (point2) + pointOffset2;
         square.GetNode (point1).Vertex.Pos.y = pointPos1.y;
         square.GetNode (point2).Vertex.Pos.y = pointPos2.y;
+        borderVertices.Add(new BorderVertex{
+          node = square.GetNode(point1),
+          directionOutside = pointOffset1.normalized,
+        });
+        borderVertices.Add(new BorderVertex{
+          node = square.GetNode(point2),
+          directionOutside = pointOffset2.normalized,
+        });
       } else if (!buffer.Get (x, y + 1, out value) || value == 0) {
         var point1 = SquarePoint.TopLeft;
         var point2 = SquarePoint.TopRight;
@@ -109,6 +150,14 @@ namespace Komorki.Common {
         var pointPos2 = square.GetAbsolutePosition (point2) + pointOffset2;
         square.GetNode (point1).Vertex.Pos.y = pointPos1.y;
         square.GetNode (point2).Vertex.Pos.y = pointPos2.y;
+        borderVertices.Add(new BorderVertex{
+          node = square.GetNode(point1),
+          directionOutside = pointOffset1.normalized,
+        });
+        borderVertices.Add(new BorderVertex{
+          node = square.GetNode(point2),
+          directionOutside = pointOffset2.normalized,
+        });
       }
     }
 
