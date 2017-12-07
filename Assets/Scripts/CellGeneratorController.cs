@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using Komorki.Common;
@@ -19,8 +18,6 @@ public class CellGeneratorController : MonoBehaviour {
 
     seed = Time.time.ToString ();
     var map = new Buffer<bool> (4, 4);
-
-    pseudoRandom = new System.Random (seed.GetHashCode ());
 
     mutableMesh = new MutableMesh ();
 
@@ -53,6 +50,8 @@ public class CellGeneratorController : MonoBehaviour {
     mesh.RecalculateNormals ();
     mesh.RecalculateBounds ();
     meshFilter.sharedMesh = mesh;
+
+    GetComponent<Renderer>().material.color = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
   }
 
   void Update () {
