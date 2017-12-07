@@ -63,7 +63,7 @@ public class CellGeneratorController : MonoBehaviour {
     int totalVertexCount = shapeAnalizer.animatedBorderVertices.Count;
     int vertexIndex = 0;
     foreach (var animatedBoderVertex in shapeAnalizer.animatedBorderVertices) {
-      var ratio = 0.5f * (1 + Mathf.Sin (2 * Mathf.PI * vertexIndex / totalVertexCount + (2 * Mathf.PI * moveBorder)));
+      var ratio = 0.5f * (1 + Mathf.Sin (8 * Mathf.PI * vertexIndex / totalVertexCount + (2 * Mathf.PI * moveBorder)));
       vertexIndex += 1;
       animatedBoderVertex.SetRatio (ratio);
     }
