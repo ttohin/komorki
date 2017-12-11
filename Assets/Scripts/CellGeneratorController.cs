@@ -70,10 +70,9 @@ public class CellGeneratorController : MonoBehaviour {
 
   void Update () {
 
-		if (!IsInView ()) {
-			return;
-		}
-			
+    if (!IsInView ()) {
+      return;
+    }
 
     moveBorder += Time.deltaTime * moveBorderSpeed;
     if (moveBorder > 1.0f) {
@@ -113,39 +112,24 @@ public class CellGeneratorController : MonoBehaviour {
     });
   }
 
-	private bool IsInView()
-	{
-		Vector3 pointOnScreen = Camera.current.WorldToScreenPoint(transform.position);
+  private bool IsInView () {
+    var cam = Camera.current;
+    if (cam == null) {
+      return false;
+    }
+    Vector3 pointOnScreen = cam.WorldToScreenPoint (transform.position);
 
-		//Is in front
-		if (pointOnScreen.z < 0)
-		{
-			return false;
-		}
+    //Is in front
+    if (pointOnScreen.z < 0) {
+      return false;
+    }
 
-		//Is in FOV
-		if ((pointOnScreen.x < 0) || (pointOnScreen.x > Screen.width) ||
-			(pointOnScreen.y < 0) || (pointOnScreen.y > Screen.height))
-		{
-			return false;
-		}
+    //Is in FOV
+    if ((pointOnScreen.x < 0) || (pointOnScreen.x > Screen.width) ||
+      (pointOnScreen.y < 0) || (pointOnScreen.y > Screen.height)) {
+      return false;
+    }
 
-//		RaycastHit hit;
-//		Vector3 heading = toCheck.transform.position - origin.transform.position;
-//		Vector3 direction = heading.normalized;// / heading.magnitude;
-//
-//		if (Physics.Linecast(cam.transform.position, toCheck.GetComponentInChildren<Renderer>().bounds.center, out hit))
-//		{
-//			if (hit.transform.name != toCheck.name)
-//			{
-//				/* -->
-//                 Debug.DrawLine(cam.transform.position, toCheck.GetComponentInChildren<Renderer>().bounds.center, Color.red);
-//                 Debug.LogError(toCheck.name + " occluded by " + hit.transform.name);
-//                 */
-//				Debug.Log(toCheck.name + " occluded by " + hit.transform.name);
-//				return false;
-//			}
-//		}
-		return true;
-	}
+    return true;
+  }
 }
