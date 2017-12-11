@@ -6,18 +6,14 @@ using MeshGeneration;
 using UnityEngine;
 
 public class CellGeneratorController : MonoBehaviour {
-  public string seed;
-  System.Random pseudoRandom;
-  public Vector2[] UV;
   MutableMesh mutableMesh;
   ShapeAnalizer shapeAnalizer;
   [Range (0, 1)]
-  public float moveBorder = 0.0f;
-  public float moveBorderSpeed = 0.7f;
+  private float moveBorder = 0.0f;
+  private float moveBorderSpeed = 0.7f;
 
   void Start () {
 
-    seed = Time.time.ToString ();
     var map = ShapeGeneration.CreateRandomShape ();
 
     mutableMesh = new MutableMesh ();
@@ -52,6 +48,23 @@ public class CellGeneratorController : MonoBehaviour {
     meshFilter.sharedMesh = mesh;
 
     GetComponent<Renderer> ().material.color = Random.ColorHSV (0f, 1f, 1f, 1f, 0.5f, 1f);
+
+    CreatePhysics (map);
+    transform.localScale = new Vector3 (0.2f, 0.2f, 0.2f);
+
+    StartCoroutine (MoveToRandomDirection ());
+  }
+
+  private IEnumerator MoveToRandomDirection () {
+    yield return new WaitForSeconds (Random.Range (0, 10));
+    while (true) {
+      var rigidBody = gameObject.GetComponent<Rigidbody> ();
+      Vector3 direction = new Vector3 (Random.Range (-10.0f, 10.0f), Random.Range (-10.0f, 10.0f), Random.Range (-10.0f, 10.0f));
+      direction.Normalize ();
+      direction *= Random.Range (0.1f, 1.0f);
+      rigidBody.velocity += direction;
+      yield return new WaitForSeconds (Random.Range (1, 5));
+    }
   }
 
   void Update () {
@@ -77,13 +90,19 @@ public class CellGeneratorController : MonoBehaviour {
     return new ShapeAnalizer (map, grid);
   }
 
-  private void CreateGizmos (Buffer<bool> map) {
+  private void CreatePhysics (Buffer<bool> map) {
+
+    var rigidBody = gameObject.AddComponent<Rigidbody> ();
+    rigidBody.useGravity = false;
+    rigidBody.drag = 0.2f;
+    rigidBody.constraints = RigidbodyConstraints.FreezeRotation;
+
     map.ForEach ((bool value, int x, int y) => {
       if (value) {
-        var boxCollider = gameObject.AddComponent<BoxCollider2D> ();
+        var boxCollider = gameObject.AddComponent<BoxCollider> ();
         float boxSize = ShapeAnalizer.scale;
-        boxCollider.size = new Vector2 (boxSize, boxSize);
-        boxCollider.offset = new Vector2 (boxSize / 2.0f + x * ShapeAnalizer.scale, boxSize / 2.0f + y * ShapeAnalizer.scale);
+        boxCollider.size = new Vector3 (boxSize, boxSize, 0.5f);
+        boxCollider.center = new Vector3 (boxSize / 2.0f + x * ShapeAnalizer.scale, boxSize / 2.0f + y * ShapeAnalizer.scale, 0.0f);
       }
     });
   }
