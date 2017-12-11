@@ -13,7 +13,27 @@ namespace Komorki.Common {
       this.height = height;
     }
 
+    public Buffer(Buffer<T> buffer, int width, int height)
+    {
+      items = new T[width, height];
+      this.width = width;
+      this.height = height;
+
+      for (int i = 0; i < width; ++i) {
+        for (int j = 0; j < height; ++j) {
+          items[i, j] = buffer.Get(i, j);
+        }
+      }
+    }
+
     public T Get (int x, int y) {
+      return items[x, y];
+    }
+
+    public T Get (int x, int y, T defaultValue) {
+      if (!IsInside (x, y)) {
+        return defaultValue;
+      }
       return items[x, y];
     }
 
@@ -27,8 +47,12 @@ namespace Komorki.Common {
       return false;
     }
 
-    public void Set (T value, int x, int y) {
+    public bool Set (T value, int x, int y) {
+      if (!IsInside (x, y)) {
+        return false;
+      }
       items[x, y] = value;
+      return true;
     }
 
     public void ForEach (Action<T, int, int> func) {
@@ -39,20 +63,6 @@ namespace Komorki.Common {
       }
     }
 
-    public void Scale (int scale, out Buffer<T> result) {
-      var temp = new Buffer<T> (width * scale, height * scale);
-
-      ForEach ((value, i, j) => {
-        for (int iScale = 0; iScale < scale; ++iScale) {
-          for (int jScale = 0; jScale < scale; ++jScale) {
-            temp.Set (value, i * scale + iScale, j * scale + jScale);
-          }
-        }
-      });
-
-      result = temp;
-    }
-
     public void Fill (T value) {
       for (int i = 0; i < width; ++i) {
         for (int j = 0; j < height; ++j) {
@@ -61,7 +71,7 @@ namespace Komorki.Common {
       }
     }
 
-    private bool IsInside (int x, int y) {
+    public bool IsInside (int x, int y) {
       if (x < 0 || x >= width || y < 0 || y >= height) {
         return false;
       }

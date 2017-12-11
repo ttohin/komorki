@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Komorki.Common;
+using Komorki.Generation;
 using MeshGeneration;
 using UnityEngine;
 
@@ -17,7 +18,7 @@ public class CellGeneratorController : MonoBehaviour {
   void Start () {
 
     seed = Time.time.ToString ();
-    var map = new Buffer<bool> (4, 4);
+    var map = ShapeGeneration.CreateRandomShape ();
 
     mutableMesh = new MutableMesh ();
 
@@ -73,14 +74,6 @@ public class CellGeneratorController : MonoBehaviour {
   }
 
   ShapeAnalizer GenerateMap (Buffer<bool> map, SquareGrid grid) {
-    map.Fill (false);
-    map.Set (true, 0, 0);
-    map.Set (true, 1, 1);
-    map.Set (true, 1, 2);
-    map.Set (true, 2, 2);
-    map.Set (true, 1, 3);
-    map.Set (true, 0, 2);
-
     return new ShapeAnalizer (map, grid);
   }
 
