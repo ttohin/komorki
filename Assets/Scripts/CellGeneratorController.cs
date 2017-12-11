@@ -29,11 +29,12 @@ public class CellGeneratorController : MonoBehaviour {
     var meshFilter = gameObject.GetComponent<MeshFilter> ();
     Vector3[] vertices = mutableMesh.GetVertexes ().ToArray ();
     float tileAmount = 0.5f;
-    float textureSize = ShapeAnalizer.scale * map.width;
+    float textureWidth = ShapeAnalizer.scale * map.width;
+    float textureHeight = ShapeAnalizer.scale * map.height;
     Vector2[] uvs = new Vector2[vertices.Length];
     for (int i = 0; i < vertices.Length; i++) {
-      float percentX = Mathf.InverseLerp (0, textureSize, vertices[i].x) * tileAmount;
-      float percentY = Mathf.InverseLerp (0, textureSize, vertices[i].y) * tileAmount;
+      float percentX = Mathf.InverseLerp (0, textureWidth, vertices[i].x) * tileAmount;
+      float percentY = Mathf.InverseLerp (0, textureHeight, vertices[i].y) * tileAmount;
       uvs[i] = new Vector2 (percentX, percentY);
     }
     var mesh = new Mesh () {
