@@ -12,8 +12,8 @@ public class CellGeneratorController : MonoBehaviour {
   private float moveBorder = 0.0f;
   private float moveBorderSpeed = 0.7f;
   public GameObject eyePrefab;
-  private bool shouldBlink = false;
-  private float blinkSpeed = -0.5f;
+  private float blinkSpeed;
+  private float blinkDirection = 0;
   private float blinkValue = 1.0f;
 
   void Start () {
@@ -28,8 +28,7 @@ public class CellGeneratorController : MonoBehaviour {
       mutableMesh
     );
 
-    blinkSpeed = Random.Range(-2.5f, -1.0f);
-
+    blinkSpeed = Random.Range(1.0f, 2.5f);
     shapeAnalizer = GenerateMap (map, grid);
 
     var meshFilter = gameObject.GetComponent<MeshFilter> ();
@@ -60,7 +59,7 @@ public class CellGeneratorController : MonoBehaviour {
     transform.localScale = new Vector3 (0.2f, 0.2f, 0.2f);
 
     var pupil = Instantiate (eyePrefab, shapeAnalizer.eye.center, Quaternion.identity, transform);
-    pupil.transform.localScale = new Vector3 (2.0f, 2.0f, 0);
+    pupil.transform.localScale = new Vector3 (2.0f, 2.0f, 1.0f);
 
     shapeAnalizer.eye.SetPupil (pupil, 0.12f);
     shapeAnalizer.eye.MovePupil (Vector3.zero);
@@ -84,7 +83,7 @@ public class CellGeneratorController : MonoBehaviour {
   private IEnumerator BlinkPeriodically () {
     yield return new WaitForSeconds (Random.Range (0, 10));
     while (true) {
-      shouldBlink = true;
+	  blinkDirection = -1;
       yield return new WaitForSeconds (5);
     }
   }
@@ -100,16 +99,17 @@ public class CellGeneratorController : MonoBehaviour {
       moveBorder = 0.0f;
     }
 
-    if (shouldBlink) {
-      blinkValue += Time.deltaTime * blinkSpeed;
+    if (blinkDirection != 0) {
+	  blinkValue += Time.deltaTime * blinkSpeed * blinkDirection;
       shapeAnalizer.eye.OpenEye(blinkValue);
-      if (blinkValue <= 0.0f)
-        blinkSpeed *= -1.0f;
+	
+	if (blinkValue <= 0.0f) {
+		blinkDirection = 1;
+	}
       
-      if (blinkValue >= 1.0f && blinkSpeed > 0)
+	  if (blinkValue >= 1.0f && blinkDirection > 0)
       {
-        blinkSpeed *= -1.0f;
-        shouldBlink = false;
+		blinkDirection = 0;
       }
     }
 
