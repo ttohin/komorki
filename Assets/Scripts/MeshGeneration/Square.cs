@@ -8,7 +8,8 @@ namespace MeshGeneration {
   public enum SquareBaseShape {
     Empty,
     Triangle,
-    Square
+    Square,
+    Pie 
   }
   public enum SquarePoint {
     BottomLeft = 0,
@@ -42,6 +43,8 @@ namespace MeshGeneration {
         points = CreateTriangle (startPoint);
       else if (shape == SquareBaseShape.Square)
         points = CreateSquare (startPoint);
+      else if (shape == SquareBaseShape.Pie)
+        points = CreatePie (startPoint);
       else if (shape == SquareBaseShape.Empty)
         points = new List<SquarePoint> ();
       else
@@ -128,6 +131,20 @@ namespace MeshGeneration {
           IncrementPoint (startPoint, 2),
           IncrementPoint (startPoint, 4),
           IncrementPoint (startPoint, 6),
+      };
+    }
+
+    public static List<SquarePoint> CreatePie (SquarePoint startPoint) {
+      return new List<SquarePoint> () {
+        IncrementPoint (startPoint, 0),
+        IncrementPoint (startPoint, 2),
+        SquarePoint.Center,
+        IncrementPoint (startPoint, 2),
+        IncrementPoint (startPoint, 4),
+        SquarePoint.Center,
+        IncrementPoint (startPoint, 0),
+        SquarePoint.Center,
+        IncrementPoint (startPoint, 6),
       };
     }
 

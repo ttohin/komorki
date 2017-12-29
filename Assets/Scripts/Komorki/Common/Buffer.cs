@@ -13,15 +13,14 @@ namespace Komorki.Common {
       this.height = height;
     }
 
-    public Buffer(Buffer<T> buffer, int width, int height)
-    {
+    public Buffer (Buffer<T> buffer, int width, int height) {
       items = new T[width, height];
       this.width = width;
       this.height = height;
 
       for (int i = 0; i < width; ++i) {
         for (int j = 0; j < height; ++j) {
-          items[i, j] = buffer.Get(i, j);
+          items[i, j] = buffer.Get (i, j);
         }
       }
     }

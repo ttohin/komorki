@@ -11,6 +11,10 @@ public class CellGeneratorController : MonoBehaviour {
   [Range (0, 1)]
   private float moveBorder = 0.0f;
   private float moveBorderSpeed = 0.7f;
+  public GameObject eyePrefab;
+  private bool shouldBlink = false;
+  private float blinkSpeed = -0.5f;
+  private float blinkValue = 1.0f;
 
   void Start () {
 
@@ -23,6 +27,8 @@ public class CellGeneratorController : MonoBehaviour {
       map.height * ShapeAnalizer.scale,
       mutableMesh
     );
+
+    blinkSpeed = Random.Range(-2.5f, -1.0f);
 
     shapeAnalizer = GenerateMap (map, grid);
 
@@ -53,7 +59,14 @@ public class CellGeneratorController : MonoBehaviour {
     CreatePhysics (map);
     transform.localScale = new Vector3 (0.2f, 0.2f, 0.2f);
 
-    StartCoroutine (MoveToRandomDirection ());
+    var pupil = Instantiate (eyePrefab, shapeAnalizer.eye.center, Quaternion.identity, transform);
+    pupil.transform.localScale = new Vector3 (2.0f, 2.0f, 0);
+
+    shapeAnalizer.eye.SetPupil (pupil, 0.12f);
+    shapeAnalizer.eye.MovePupil (Vector3.zero);
+
+    // StartCoroutine (MoveToRandomDirection ());
+    StartCoroutine (BlinkPeriodically());
   }
 
   private IEnumerator MoveToRandomDirection () {
@@ -68,6 +81,14 @@ public class CellGeneratorController : MonoBehaviour {
     }
   }
 
+  private IEnumerator BlinkPeriodically () {
+    yield return new WaitForSeconds (Random.Range (0, 10));
+    while (true) {
+      shouldBlink = true;
+      yield return new WaitForSeconds (5);
+    }
+  }
+
   void Update () {
 
     if (!IsInView ()) {
@@ -79,6 +100,19 @@ public class CellGeneratorController : MonoBehaviour {
       moveBorder = 0.0f;
     }
 
+    if (shouldBlink) {
+      blinkValue += Time.deltaTime * blinkSpeed;
+      shapeAnalizer.eye.OpenEye(blinkValue);
+      if (blinkValue <= 0.0f)
+        blinkSpeed *= -1.0f;
+      
+      if (blinkValue >= 1.0f && blinkSpeed > 0)
+      {
+        blinkSpeed *= -1.0f;
+        shouldBlink = false;
+      }
+    }
+
     int totalVertexCount = shapeAnalizer.animatedBorderVertices.Count;
     int vertexIndex = 0;
     foreach (var animatedBoderVertex in shapeAnalizer.animatedBorderVertices) {
@@ -87,6 +121,19 @@ public class CellGeneratorController : MonoBehaviour {
       animatedBoderVertex.SetRatio (ratio);
     }
 
+    // point pupil to cursor
+    var mousePos = Input.mousePosition;
+    mousePos.z = 10; // select distance = 10 units from the camera
+    var mousePosition = Camera.main.ScreenToWorldPoint (mousePos);
+    var pupilPos = transform.position + shapeAnalizer.eye.center;
+    var pupilOffset = mousePosition - pupilPos;
+    if (pupilOffset.sqrMagnitude > 1.0f)
+      pupilOffset.Normalize ();
+
+    pupilOffset.z = 0;
+    shapeAnalizer.eye.MovePupil (pupilOffset);
+
+    // update mesh to apply all changes made by MutableMesh
     var meshFilter = GetComponent<MeshFilter> ();
     meshFilter.mesh.vertices = mutableMesh.GetVertexes ().ToArray ();
   }
