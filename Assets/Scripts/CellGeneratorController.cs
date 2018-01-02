@@ -9,8 +9,6 @@ public class CellGeneratorController : MonoBehaviour {
   MutableMesh mutableMesh;
   ShapeAnalizer shapeAnalizer;
   [Range (0, 1)]
-  private float moveBorder = 0.0f;
-  private float moveBorderSpeed = 0.7f;
   public GameObject eyePrefab;
   private float blinkSpeed;
   private float blinkDirection = 0;
@@ -28,7 +26,7 @@ public class CellGeneratorController : MonoBehaviour {
       mutableMesh
     );
 
-    blinkSpeed = Random.Range(1.0f, 2.5f);
+    blinkSpeed = Random.Range (1.0f, 2.5f);
     shapeAnalizer = GenerateMap (map, grid);
 
     var meshFilter = gameObject.GetComponent<MeshFilter> ();
@@ -47,6 +45,7 @@ public class CellGeneratorController : MonoBehaviour {
       triangles = mutableMesh.GetTriangles ().ToArray (),
       uv = uvs,
       uv2 = uvs,
+      colors = mutableMesh.GetColors ().ToArray (),
     };
     mesh.RecalculateTangents ();
     mesh.RecalculateNormals ();
@@ -65,7 +64,7 @@ public class CellGeneratorController : MonoBehaviour {
     shapeAnalizer.eye.MovePupil (Vector3.zero);
 
     // StartCoroutine (MoveToRandomDirection ());
-    StartCoroutine (BlinkPeriodically());
+    StartCoroutine (BlinkPeriodically ());
   }
 
   private IEnumerator MoveToRandomDirection () {
@@ -83,42 +82,27 @@ public class CellGeneratorController : MonoBehaviour {
   private IEnumerator BlinkPeriodically () {
     yield return new WaitForSeconds (Random.Range (0, 10));
     while (true) {
-	  blinkDirection = -1;
+      blinkDirection = -1;
       yield return new WaitForSeconds (5);
     }
   }
 
   void Update () {
-
-    if (!IsInView ()) {
-      return;
-    }
-
-    moveBorder += Time.deltaTime * moveBorderSpeed;
-    if (moveBorder > 1.0f) {
-      moveBorder = 0.0f;
-    }
-
     if (blinkDirection != 0) {
-	  blinkValue += Time.deltaTime * blinkSpeed * blinkDirection;
-      shapeAnalizer.eye.OpenEye(blinkValue);
-	
-	if (blinkValue <= 0.0f) {
-		blinkDirection = 1;
-	}
-      
-	  if (blinkValue >= 1.0f && blinkDirection > 0)
-      {
-		blinkDirection = 0;
-      }
-    }
+      blinkValue += Time.deltaTime * blinkSpeed * blinkDirection;
+      shapeAnalizer.eye.OpenEye (blinkValue);
 
-    int totalVertexCount = shapeAnalizer.animatedBorderVertices.Count;
-    int vertexIndex = 0;
-    foreach (var animatedBoderVertex in shapeAnalizer.animatedBorderVertices) {
-      var ratio = 0.5f * (1 + Mathf.Sin (8 * Mathf.PI * vertexIndex / totalVertexCount + (2 * Mathf.PI * moveBorder)));
-      vertexIndex += 1;
-      animatedBoderVertex.SetRatio (ratio);
+      if (blinkValue <= 0.0f) {
+        blinkDirection = 1;
+      }
+
+      if (blinkValue >= 1.0f && blinkDirection > 0) {
+        blinkDirection = 0;
+      }
+
+      // update mesh to apply all changes made by MutableMesh
+      var meshFilter = GetComponent<MeshFilter> ();
+      meshFilter.mesh.vertices = mutableMesh.GetVertexes ().ToArray ();
     }
 
     // point pupil to cursor
@@ -132,10 +116,6 @@ public class CellGeneratorController : MonoBehaviour {
 
     pupilOffset.z = 0;
     shapeAnalizer.eye.MovePupil (pupilOffset);
-
-    // update mesh to apply all changes made by MutableMesh
-    var meshFilter = GetComponent<MeshFilter> ();
-    meshFilter.mesh.vertices = mutableMesh.GetVertexes ().ToArray ();
   }
 
   ShapeAnalizer GenerateMap (Buffer<bool> map, SquareGrid grid) {

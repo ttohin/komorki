@@ -5,6 +5,7 @@ using UnityEngine;
 namespace MeshGeneration {
   public class MutableMeshVertex {
     public Vector3 Pos;
+    public Color Color = Color.black;
     public int Index;
   }
 
@@ -45,6 +46,14 @@ namespace MeshGeneration {
         triangles.Add (t.v3.Index);
       }
       return triangles;
+    }
+
+    public List<Color> GetColors () {
+      var vertexes = new List<Color> ();
+      foreach (var v in Vertexes) {
+        vertexes.Add (v.Color);
+      }
+      return vertexes;
     }
 
     public MutableMeshVertex CreateVertex (Vector3 pos) {

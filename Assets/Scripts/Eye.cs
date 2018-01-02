@@ -11,6 +11,7 @@ public class EyeLidVertex {
 	public EyeLidVertex (MutableMeshVertex vertex, Vector3 openPosition, Vector3 closedPosition) {
 		this.vertex = vertex;
 		this.closedPosition = closedPosition;
+		this.vertex.Color = Color.white;
 
 		var openPositionOffset = openPosition - closedPosition;
 		openDirection = openPositionOffset.normalized;
@@ -59,6 +60,9 @@ public class Eye {
 		this.bottomRightEyeLid = CreateEyeLidVertex (bottomRightEyeLid, center);
 		this.leftCorner = leftCorner;
 		this.rightCorner = rightCorner;
+
+		this.leftCorner.Color = Color.white;
+		this.rightCorner.Color = Color.white;
 	}
 
 	public void OpenEye (float open) {
