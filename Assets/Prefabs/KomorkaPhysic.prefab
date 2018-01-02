@@ -24,7 +24,7 @@ GameObject:
   - component: {fileID: 114330039448784534}
   m_Layer: 0
   m_Name: KomorkaPhysic
-  m_TagString: Untagged
+  m_TagString: Komorka
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
