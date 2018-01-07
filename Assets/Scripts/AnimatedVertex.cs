@@ -9,6 +9,7 @@ public class AnimatedVertex {
   private Vector3 targetPosition;
   private Action completion;
   private bool completed = false;
+
   public AnimatedVertex (MutableMeshVertex vertex, float speed, Action completion) {
     if (vertex == null)
       throw new ArgumentNullException ("vertex cannot be null");

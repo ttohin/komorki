@@ -13,10 +13,13 @@ public class CellGeneratorController : MonoBehaviour {
   private float blinkSpeed;
   private float blinkDirection = 0;
   private float blinkValue = 1.0f;
+  private bool updateMeshEachFrame = false;
 
-  void Start () {
+  void Start () { }
 
-    var map = ShapeGeneration.CreateRandomShape ();
+  public void Init (Buffer<bool> map, bool updateMeshEachFrame, bool createPhysics) {
+    this.updateMeshEachFrame = updateMeshEachFrame;
+    blinkSpeed = Random.Range (1.0f, 2.5f);
 
     mutableMesh = new MutableMesh ();
 
@@ -26,7 +29,6 @@ public class CellGeneratorController : MonoBehaviour {
       mutableMesh
     );
 
-    blinkSpeed = Random.Range (1.0f, 2.5f);
     shapeAnalizer = GenerateMap (map, grid);
 
     var meshFilter = gameObject.GetComponent<MeshFilter> ();
@@ -54,8 +56,10 @@ public class CellGeneratorController : MonoBehaviour {
 
     GetComponent<Renderer> ().material.color = Random.ColorHSV (0f, 1f, 1f, 1f, 0.5f, 1f);
 
-    CreatePhysics (map);
-    transform.localScale = new Vector3 (0.2f, 0.2f, 0.2f);
+    if (createPhysics) {
+      CreatePhysics (map);
+    }
+    transform.localScale = new Vector3 (0.25f, 0.25f, 0.25f);
 
     var pupil = Instantiate (eyePrefab, shapeAnalizer.eye.center, Quaternion.identity, transform);
     pupil.transform.localScale = new Vector3 (2.0f, 2.0f, 1.0f);
@@ -63,7 +67,6 @@ public class CellGeneratorController : MonoBehaviour {
     shapeAnalizer.eye.SetPupil (pupil, 0.12f);
     shapeAnalizer.eye.MovePupil (Vector3.zero);
 
-    // StartCoroutine (MoveToRandomDirection ());
     StartCoroutine (BlinkPeriodically ());
   }
 
@@ -88,6 +91,7 @@ public class CellGeneratorController : MonoBehaviour {
   }
 
   void Update () {
+    bool shouldUpdateMesh = updateMeshEachFrame;
     if (blinkDirection != 0) {
       blinkValue += Time.deltaTime * blinkSpeed * blinkDirection;
       shapeAnalizer.eye.OpenEye (blinkValue);
@@ -100,6 +104,10 @@ public class CellGeneratorController : MonoBehaviour {
         blinkDirection = 0;
       }
 
+      shouldUpdateMesh = true;
+    }
+
+    if (shouldUpdateMesh) {
       // update mesh to apply all changes made by MutableMesh
       var meshFilter = GetComponent<MeshFilter> ();
       meshFilter.mesh.vertices = mutableMesh.GetVertexes ().ToArray ();
@@ -122,8 +130,13 @@ public class CellGeneratorController : MonoBehaviour {
     return new ShapeAnalizer (map, grid);
   }
 
-  private void CreatePhysics (Buffer<bool> map) {
+  public void ScaleShape (float scale) {
+    foreach (var borderVertex in shapeAnalizer.animatedBorderVertices) {
+      borderVertex.SetRatio (scale);
+    }
+  }
 
+  private void CreatePhysics (Buffer<bool> map) {
     var rigidBody = gameObject.AddComponent<Rigidbody> ();
     rigidBody.useGravity = false;
     rigidBody.drag = 0.2f;

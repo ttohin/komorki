@@ -85,10 +85,28 @@ namespace Komorki.Common {
           leftCorner: leftEyeSquare.GetNode(SquarePoint.Center).Vertex,
           rightCorner: rightEyeSquare.GetNode(SquarePoint.Center).Vertex
         );
+
+
+        borderVertices.Add (new BorderVertex {
+          node = leftEyeSquare.GetNode (SquarePoint.TopLeft),
+            directionOutside = Vector3.left,
+        });
+        borderVertices.Add (new BorderVertex {
+          node = leftEyeSquare.GetNode (SquarePoint.BottomLeft),
+            directionOutside = Vector3.left,
+        });
+        borderVertices.Add (new BorderVertex {
+          node = rightEyeSquare.GetNode (SquarePoint.TopRight),
+            directionOutside = Vector3.right,
+        });
+        borderVertices.Add (new BorderVertex {
+          node = rightEyeSquare.GetNode (SquarePoint.BottomRight),
+            directionOutside = Vector3.right,
+        });
       }
 
       foreach (var borderVertex in borderVertices) {
-        float outsideMaxDistance = 0.2f;
+        float outsideMaxDistance = 0.4f;
         var vertex = borderVertex.node.Vertex;
         animatedBorderVertices.Add (new AnimatedBorderVertex (vertex.Pos, vertex.Pos + borderVertex.directionOutside * outsideMaxDistance, vertex));
       }
