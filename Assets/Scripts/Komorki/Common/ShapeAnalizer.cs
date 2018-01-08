@@ -11,6 +11,36 @@ namespace Komorki.Common {
     public Vector3 directionOutside;
   }
 
+  public class Fibre {
+    public MutableMeshVertex InsideVertex;
+    public MutableMeshVertex OutsideVertexLeft;
+    public MutableMeshVertex OutsideVertexRight;
+    public Vector3 directionOutside;
+    public Vector3 OutsideVertexLeftClosePos;
+    public Vector3 OutsideVertexRightClosePos;
+
+    public Fibre (
+      MutableMeshVertex InsideVertex,
+      MutableMeshVertex OutsideVertexLeft,
+      MutableMeshVertex OutsideVertexRight,
+      MutableMesh mutableMesh,
+      Vector3 directionOutside
+    ) {
+      mutableMesh.CreateTriangle(InsideVertex, OutsideVertexLeft, OutsideVertexRight);
+      this.InsideVertex = InsideVertex;
+      this.OutsideVertexLeft = OutsideVertexLeft;
+      this.OutsideVertexRight = OutsideVertexRight;
+      this.directionOutside = directionOutside;
+      OutsideVertexLeftClosePos = OutsideVertexLeft.Pos;
+      OutsideVertexRightClosePos = OutsideVertexRight.Pos;
+    }
+
+    public void MoveOutside (float outside) {
+      OutsideVertexLeft.Pos = OutsideVertexLeftClosePos + (directionOutside * outside);
+      OutsideVertexRight.Pos = OutsideVertexRightClosePos + (directionOutside * outside);
+    }
+  }
+
   public class ShapeAnalizer {
     private const int Empty = 0;
     private const int DefaultValue = 1;
@@ -20,6 +50,7 @@ namespace Komorki.Common {
     public static int scale = 3;
     public List<AnimatedBorderVertex> animatedBorderVertices = new List<AnimatedBorderVertex> ();
     public List<BorderVertex> borderVertices = new List<BorderVertex> ();
+    public List<Fibre> fibers = new List<Fibre>();
     public Eye eye;
     public bool eyeFound = false;
     public int eyeX;
@@ -53,7 +84,7 @@ namespace Komorki.Common {
         } else if (value == EyeCenter) {
           // Eye center should be empty
         } else if (value == EyeLeftCorner || value == EyeRightCorner) {
-          AnalizeEyeCorner(value, x, y, grid.grid[x, y]);
+          AnalizeEyeCorner (value, x, y, grid.grid[x, y]);
         } else if (value == DefaultValue) {
           int nSquare = CountNeighborsSquare (internalBuffer, x, y);
           int nDiamond = CountNeighborsDiamond (internalBuffer, x, y);
@@ -71,19 +102,18 @@ namespace Komorki.Common {
         }
       });
 
-      if (eyeFound)
-      {
+      if (eyeFound) {
         var centralEyeSquare = grid.grid[eyeX, eyeY];
         var leftEyeSquare = grid.grid[eyeX - 1, eyeY];
         var rightEyeSquare = grid.grid[eyeX + 1, eyeY];
 
-        eye = new Eye(
-          topLeftEyeLid: centralEyeSquare.GetNode(SquarePoint.TopLeft).Vertex,
-          topRightEyeLid: centralEyeSquare.GetNode(SquarePoint.TopRight).Vertex,
-          bottomLeftEyeLid: centralEyeSquare.GetNode(SquarePoint.BottomLeft).Vertex,
-          bottomRightEyeLid: centralEyeSquare.GetNode(SquarePoint.BottomRight).Vertex,
-          leftCorner: leftEyeSquare.GetNode(SquarePoint.Center).Vertex,
-          rightCorner: rightEyeSquare.GetNode(SquarePoint.Center).Vertex
+        eye = new Eye (
+          topLeftEyeLid: centralEyeSquare.GetNode (SquarePoint.TopLeft).Vertex,
+          topRightEyeLid : centralEyeSquare.GetNode (SquarePoint.TopRight).Vertex,
+          bottomLeftEyeLid : centralEyeSquare.GetNode (SquarePoint.BottomLeft).Vertex,
+          bottomRightEyeLid : centralEyeSquare.GetNode (SquarePoint.BottomRight).Vertex,
+          leftCorner : leftEyeSquare.GetNode (SquarePoint.Center).Vertex,
+          rightCorner : rightEyeSquare.GetNode (SquarePoint.Center).Vertex
         );
       }
 
@@ -92,7 +122,7 @@ namespace Komorki.Common {
         var vertex = borderVertex.node.Vertex;
         animatedBorderVertices.Add (new AnimatedBorderVertex (vertex.Pos, vertex.Pos + borderVertex.directionOutside * outsideMaxDistance, vertex));
       }
-      
+
     }
 
     void FindEye (Buffer<int> internalBuffer) {
@@ -139,6 +169,8 @@ namespace Komorki.Common {
     void AnalizeSquare (Buffer<int> buffer, Square square, int x, int y) {
       square.Init (SquarePoint.BottomLeft, SquareBaseShape.Square);
 
+      float fiberWidth = 0.1f;
+      float fiberBaseFromBorder = 0.1f;
       float moveVertexToBorder = 0.1f;
       int value;
       if (!buffer.Get (x - 1, y, out value) || value == 0) {
@@ -158,6 +190,9 @@ namespace Komorki.Common {
           node = square.GetNode (point2),
             directionOutside = pointOffset2.normalized,
         });
+        var fiberSquarePos = square.GetAbsolutePosition(SquarePoint.LeftCenter);
+        var fiberInsideVertex = square.mesh.CreateVertex(fiberSquarePos - pointOffset1.normalized * fiberBaseFromBorder);
+        var fiberOutsideVertexLeft = square.mesh.CreateVertex(fiberSquarePos - poin);
       } else if (!buffer.Get (x + 1, y, out value) || value == 0) {
         var point1 = SquarePoint.BottomRight;
         var point2 = SquarePoint.TopRight;
@@ -218,7 +253,7 @@ namespace Komorki.Common {
       } else if (value == EyeRightCorner) {
         square.Init (SquarePoint.TopRight, SquareBaseShape.Pie);
       } else {
-        throw new ArgumentException(string.Format("Unexpected value for eye corner: {0}, [{1}, {2}]", value, x, y));
+        throw new ArgumentException (string.Format ("Unexpected value for eye corner: {0}, [{1}, {2}]", value, x, y));
       }
 
       return square.GetNode (SquarePoint.Center).Vertex;

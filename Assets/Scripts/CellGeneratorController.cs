@@ -54,7 +54,7 @@ public class CellGeneratorController : MonoBehaviour {
 
     GetComponent<Renderer> ().material.color = Random.ColorHSV (0f, 1f, 1f, 1f, 0.5f, 1f);
 
-    CreatePhysics (map);
+    // CreatePhysics (map);
     transform.localScale = new Vector3 (0.2f, 0.2f, 0.2f);
 
     var pupil = Instantiate (eyePrefab, shapeAnalizer.eye.center, Quaternion.identity, transform);

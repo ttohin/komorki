@@ -32,7 +32,7 @@ namespace MeshGeneration {
     private SquarePoint startPoint;
     private SquareBaseShape shape;
     private Dictionary<SquarePoint, SquareNode> nodes;
-    private MutableMesh mesh;
+    public MutableMesh mesh;
     private List<SquarePoint> points;
 
     public void Init (SquarePoint startPoint, SquareBaseShape shape) {
